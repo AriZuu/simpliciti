@@ -1,7 +1,7 @@
 /**************************************************************************************************
   Filename:       bsp_msp430_defs.h
-  Revised:        $Date: 2011/11/23 16:12:48 $
-  Revision:       $Revision: 1.3 $
+  Revised:        $Date: 2011/11/23 16:20:44 $
+  Revision:       $Revision: 1.4 $
 
   Copyright 2007-2009 Texas Instruments Incorporated.  All rights reserved.
 
@@ -99,7 +99,19 @@
 	
 /* ------------------ Unrecognized Compiler ------------------ */
 #else
+#ifdef __GNUC__
+#include <msp430.h>
+#include <in430.h>
+#define __bsp_ISTATE_T__ uint16_t
+#define __bsp_ISR_FUNCTION__(f,v) void __attribute__((interrupt(v))) f(void)
+#define __bsp_ENABLE_INTERRUPTS__() __eint()
+#define __bsp_DISABLE_INTERRUPTS__() __dint()
+#define __bsp_INTERRUPTS_ARE_ENABLED__() (__read_status_register()  & 0x8)
+#define __bsp_GET_ISTATE__() (__read_status_register()  & 0x8)
+#define __bsp_RESTORE_ISTATE__(x) st(if((x&GIE))__bis_status_register (GIE);)
+#else
 #error "ERROR: Unknown compiler."
+#endif
 #endif
 
 #if (defined BSP_COMPILER_IAR) || (defined BSP_COMPILER_CODE_COMPOSER)
@@ -123,6 +135,9 @@
 #define __bsp_CODE_MEMSPACE__   /* blank */
 #define __bsp_XDATA_MEMSPACE__  /* blank */
 
+#ifdef __GNUC__
+#include <stdint.h>
+#else
 typedef   signed char     int8_t;
 typedef   signed short    int16_t;
 typedef   signed long     int32_t;
@@ -130,6 +145,7 @@ typedef   signed long     int32_t;
 typedef   unsigned char   uint8_t;
 typedef   unsigned short  uint16_t;
 typedef   unsigned long   uint32_t;
+#endif
 
 #ifndef NULL
 #define NULL 0

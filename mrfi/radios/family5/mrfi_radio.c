@@ -1,6 +1,6 @@
 /**************************************************************************************************
-  Revised:        $Date: 2011/11/23 16:12:48 $
-  Revision:       $Revision: 1.1 $
+  Revised:        $Date: 2011/12/10 14:50:50 $
+  Revision:       $Revision: 1.8 $
 
   Copyright 2008-2009 Texas Instruments Incorporated.  All rights reserved.
 
@@ -40,6 +40,7 @@
  *                                          Includes
  * ------------------------------------------------------------------------------------------------
  */
+#include <picoos.h>
 #include <string.h>
 #include "mrfi.h"
 #include "bsp.h"
@@ -242,13 +243,45 @@ const uint8_t mrfiRadioCfg[][2] =
  *  be adjusted.  It is located in mrfi_defs.h and is called __mrfi_NUM_LOGICAL_CHANS__.
  *  The static assert below ensures that there is no mismatch.
  */
-static const uint8_t mrfiLogicalChanTable[] =
-{
-  SMARTRF_SETTING_CHANNR,
-  50,
-  80,
-  110
-};
+// [BM] Changed channel assignment to comply with local regulations
+#ifdef ISM_EU
+
+  static const uint8_t mrfiLogicalChanTable[] =
+  {
+    0,
+    50,
+    80,
+    110
+  };
+
+#else
+#ifdef ISM_US
+
+  static const uint8_t mrfiLogicalChanTable[] =
+  {
+    20,
+    50,
+    80,
+    110
+  };
+
+#else
+#ifdef ISM_LF
+
+  static const uint8_t mrfiLogicalChanTable[] =
+  {
+    0,
+    50,
+    80,
+    110
+  };
+
+#else
+#error "Wrong ISM band specified (valid are ISM_LF, ISM_EU and ISM_US)"
+#endif
+#endif
+#endif
+
 /* verify number of table entries matches the corresponding #define */
 BSP_STATIC_ASSERT(__mrfi_NUM_LOGICAL_CHANS__ == ((sizeof(mrfiLogicalChanTable)/sizeof(mrfiLogicalChanTable[0])) * sizeof(mrfiLogicalChanTable[0])));
 
@@ -268,11 +301,23 @@ BSP_STATIC_ASSERT(__mrfi_NUM_LOGICAL_CHANS__ == ((sizeof(mrfiLogicalChanTable)/s
  *
  * For the CC430 use the CC1100 values.
  */
+  //while(valueRead != 0x03)    // Output Power: -30  [dBm]
+//tama  while(valueRead != 0x25)    // Output Power: -12  [dBm]
+  //while(valueRead != 0x2D)    // Output Power: -6   [dBm]
+  //while(valueRead != 0x8D)    // Output Power:  0   [dBm]
+  //while(valueRead != 0xC3)    // Output Power:  10  [dBm]
+  //while(valueRead != 0xC0)    // Output Power:  Maximum  [dBm]
+  //while(valueRead != 0xC5)
+
 static const uint8_t mrfiRFPowerTable[] =
 {
-  0x0D,
-  0x34,
-  0x8E
+#ifdef ISM_EU
+		  0x25, // -12 dBm
+		  0x8D, // 0 dBm
+		  0xC3 // +10 dBm
+#else
+#error "Wrong ISM band specified (valid are ISM_LF, ISM_EU and ISM_US)"
+#endif
 };
 
 /* verify number of table entries matches the corresponding #define */
@@ -1111,7 +1156,23 @@ void MRFI_WakeUp(void)
  * @return      -
  **************************************************************************************************
  */
-BSP_ISR_FUNCTION( MRFI_RadioIsr, CC1101_VECTOR )
+
+void MRFI_RadioIsr(void);
+void _MRFI_RadioIsr(void);
+
+void PORT_NAKED __attribute__((interrupt(CC1101_VECTOR))) MRFI_RadioIsr()
+{
+  portSaveContext();
+  c_pos_intEnter();
+
+  _MRFI_RadioIsr();
+
+  c_pos_intExit();
+  portRestoreContext();
+}
+
+void _MRFI_RadioIsr()
+// Old: BSP_ISR_FUNCTION( MRFI_RadioIsr, CC1101_VECTOR )
 {
   uint16_t coreIntSource = RF1AIV;            /* Radio Core      interrupt register */
   uint16_t interfaceIntSource = RF1AIFIV;     /* Radio Interface interrupt register */

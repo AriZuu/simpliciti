@@ -1,7 +1,7 @@
 /**************************************************************************************************
   Filename:       nwk_QMgmt.c
-  Revised:        $Date: 2011/11/23 16:12:48 $
-  Revision:       $Revision: 1.3 $
+  Revised:        $Date: 2011/11/23 16:20:44 $
+  Revision:       $Revision: 1.4 $
   Author:         $Author: ari $
 
   Description:    This file supports the SimpliciTI input and output frame queues
@@ -37,7 +37,9 @@
 /******************************************************************************
  * INCLUDES
  */
+#ifndef __GNUC__
 #include <intrinsics.h>
+#endif
 #include <string.h>
 #include "bsp.h"
 #include "mrfi.h"

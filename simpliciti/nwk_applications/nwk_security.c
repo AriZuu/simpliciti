@@ -1,7 +1,7 @@
 /**************************************************************************************************
   Filename:       nwk_security.c
-  Revised:        $Date: 2011/11/23 16:12:47 $
-  Revision:       $Revision: 1.3 $
+  Revised:        $Date: 2011/11/23 16:20:44 $
+  Revision:       $Revision: 1.4 $
   Author:         $Author: ari $
 
   Description:    This file supports the SimpliciTI Security network application.
@@ -97,7 +97,7 @@ typedef union
 {
   uint8_t  keyS[SMPL_KEYSIZE_BYTES];
   uint32_t keyL[SMPL_KEYSIZE_LONGS];
-} key_t;
+} key_texas_t;
 
 
 /******************************************************************************
@@ -115,7 +115,7 @@ static uint32_t const sIV = 0x87654321;
  * endianness, good prectice will initialize these as a string (or character
  * array) so that the endianess reconciliation works properly for all cases.
  */
-static key_t sKey = {"SimpliciTI's Key"};
+static key_texas_t sKey = {"SimpliciTI's Key"};
 
 /* Constant set as an authentication code. Note that since it is a
  * fixed value as opposed to a hash of the message it does not provide
