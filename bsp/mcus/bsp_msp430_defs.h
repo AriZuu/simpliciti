@@ -1,7 +1,7 @@
 /**************************************************************************************************
-  Filename:      bsp_msp430_defs.h
-  Revised:        $Date: 2011/11/10 13:38:29 $
-  Revision:       $Revision: 1.1 $
+  Filename:       bsp_msp430_defs.h
+  Revised:        $Date: 2011/11/23 16:12:48 $
+  Revision:       $Revision: 1.3 $
 
   Copyright 2007-2009 Texas Instruments Incorporated.  All rights reserved.
 
@@ -68,8 +68,6 @@
 #if ((__VER__ == 342) && (__SUBVERSION__ == 'A')) && \
      (defined (__MSP430F1610__) || defined (__MSP430F1611__) || defined (__MSP430F1612__))
 #include <msp430x16x.h>
-#elif (MRFI_CC430)
-#include <cc430x613x.h>
 #else
 #include <msp430.h>
 #endif
@@ -78,8 +76,9 @@
 #define __bsp_ISR_FUNCTION__(f,v)   __bsp_QUOTED_PRAGMA__(vector=v) __interrupt void f(void); \
                                     __bsp_QUOTED_PRAGMA__(vector=v) __interrupt void f(void)
 
-/* Initialization call provided IAR environment before standard C-startup */
-#define BSP_EarlyInit(void)  __low_level_init(void)
+/* Initialization call provided in IAR environment before standard C-startup */
+#include <intrinsics.h>
+#define BSP_EARLY_INIT(void) __intrinsic int __low_level_init(void)
 
 /* ---------------------- Code Composer ---------------------- */
 #elif (defined __TI_COMPILER_VERSION__) && (defined __MSP430__)
@@ -96,7 +95,7 @@
 #define __bsp_ISR_FUNCTION__(f,v)   __bsp_QUOTED_PRAGMA__(vector=v) __interrupt void f(void)
 
 /* Initialization call provided in CCE environment before standard C-startup */
-#define BSP_EarlyInit(void)  _system_pre_init(void)
+#define BSP_EARLY_INIT(void)  int _system_pre_init(void)
 	
 /* ------------------ Unrecognized Compiler ------------------ */
 #else

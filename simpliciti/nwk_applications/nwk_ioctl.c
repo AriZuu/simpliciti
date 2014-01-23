@@ -1,8 +1,8 @@
 
 /**************************************************************************************************
   Filename:       nwk_ioctl.c
-  Revised:        $Date: 2011/11/10 13:40:30 $
-  Revision:       $Revision: 1.2 $
+  Revised:        $Date: 2011/11/23 16:12:47 $
+  Revision:       $Revision: 1.3 $
   Author:         $Author: ari $
 
   Description:    This file supports the SimpliciTI IOCTL implmentation. This interface
@@ -216,7 +216,7 @@ smplStatus_t nwk_radioControl(ioctlAction_t action, void *val)
     MRFI_RxIdle();
   }
 #ifdef EXTENDED_API
-  else if (IOCTL_ACT_RADIO_SETPWR)
+  else if (IOCTL_ACT_RADIO_SETPWR == action)
   {
     uint8_t idx;
 

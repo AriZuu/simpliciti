@@ -1,6 +1,6 @@
 /**************************************************************************************************
-  Revised:        $Date: 2011/11/10 13:40:30 $
-  Revision:       $Revision: 1.2 $
+  Revised:        $Date: 2011/11/23 16:12:48 $
+  Revision:       $Revision: 1.3 $
 
   Copyright 2007-2009 Texas Instruments Incorporated.  All rights reserved.
 
@@ -175,9 +175,7 @@ uint8_t mrfiLnaHighGainMode = 1;
  */
 /*
  *  Logical channel table - this table translates logical channel into
- *  actual radio channel number.  Channel 0, the default channel, is
- *  determined by the channel exported from SmartRF Studio.  The other
- *  table entries are derived from that default.  Each derived channel is
+ *  actual radio channel number. Each derived channel is
  *  masked with 0xFF to prevent generation of an illegal channel number.
  *
  *  This table is easily customized.  Just replace or add entries as needed.

@@ -1,9 +1,9 @@
 /**************************************************************************************************
   Filename:       bsp_board.c
   Revised:        $Date: 2011/11/23 16:12:47 $
-  Revision:       $Revision: 1.3 $
+  Revision:       $Revision: 1.1 $
 
-  Copyright 2007-2009 Texas Instruments Incorporated.  All rights reserved.
+  Copyright 2009 Texas Instruments Incorporated.  All rights reserved.
 
   IMPORTANT: Your use of this Software is limited to those specific rights granted under
   the terms of a software license agreement between the user who downloaded the software,
@@ -32,8 +32,8 @@
 
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
  *   BSP (Board Support Package)
- *   Target : Texas Instruments EZ430-RF2500
- *            "MSP430 Wireless Development Tool"
+ *   Target : Texas Instruments MSP430F2618
+ *            "SmartRF05 Board"
  *   Top-level board code file.
  * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
  */
@@ -44,6 +44,7 @@
  */
 #include "bsp.h"
 #include "bsp_config.h"
+#include "DCO_calibrate.h"
 
 /* ------------------------------------------------------------------------------------------------
  *                                            Prototypes
@@ -54,7 +55,88 @@
  *                                            Defines
  * ------------------------------------------------------------------------------------------------
  */
-#define BSP_TIMER_CLK_MHZ   (BSP_CONFIG_CLOCK_MHZ_SELECT)
+
+/* Timer clk */
+#define BSP_TIMER_CLK_MHZ       BSP_CONFIG_CLOCK_MHZ
+#define BSP_DELAY_MAX_USEC      (0xFFFF/BSP_TIMER_CLK_MHZ)
+
+
+#define BSP_CLOCK_TYPE_DCO         0
+#define BSP_CLOCK_TYPE_CRYSTAL     1
+
+
+#define BSP_CLOCK_INIT(x)                            \
+{                                                    \
+  /* The DCO library does not handle the stack */    \
+  /* frame well. As a result, this macro must */     \
+  /* be the first thing that runs after main. */     \
+  /* Disable watchdog timer */                       \
+  WDTCTL = WDTPW | WDTHOLD;                          \
+                                                     \
+  if (x == BSP_CLOCK_TYPE_CRYSTAL)                   \
+  {                                                  \
+    /* Configure external crystal */                 \
+    /* Turn on XT2 */                                \
+    BCSCTL1 &= ~(XT2OFF);                            \
+                                                     \
+    /* Select SMCLK = XT2 - MCLK = XT2  */           \
+    BCSCTL2 |= (SELS | SELM1);                       \
+                                                     \
+    /* XT2 range select 3 to 16MHz, 10pf */          \
+    BCSCTL3 |= (XCAP0 | XCAP1 | XT2S1);              \
+                                                     \
+    /* wait for oscillator to stabilize */           \
+    for (;;)                                         \
+    {                                                \
+      uint8_t i;                                     \
+      uint8_t fault;                                 \
+                                                     \
+      /* clear oscillator fault flag */              \
+      IFG1 &= ~OFIFG;                                \
+      fault = 0;                                     \
+                                                     \
+      /* once fault flag is clear */                 \
+      /* several times in a row, continue. */        \
+      for (i=0; i<10; i++)                           \
+      {                                              \
+        fault = fault + (IFG1 & OFIFG);              \
+      }                                              \
+      if (fault == 0) break;                         \
+    }                                                \
+  }                                                  \
+  else if (x == BSP_CLOCK_TYPE_DCO)                  \
+  {                                                  \
+    /* Setup the GPIOs for DCO calibration */        \
+    /* P1.1 and P1.4 outputs. */                     \
+    P1DIR |= 0x12;                                   \
+                                                     \
+    /* P1.4 SMCLK output */                          \
+    P1SEL |= 0x10;                                   \
+                                                     \
+    /* P2.0 output */                                \
+    P2DIR |= 0x01;                                   \
+                                                     \
+    /* P2.0 ACLK output */                           \
+    P2SEL |= 0x01;                                   \
+                                                     \
+    /* delay for ACLK startup */                     \
+    {                                                \
+      uint16_t i;                                    \
+      for (i=0; i<0xFFFF; i++) {};                   \
+    }                                                \
+                                                     \
+    /* Set DCO at 6MHz */                            \
+    BSP_ASSERT(TI_SetDCO(TI_DCO_6MHZ) == 0);         \
+  }                                                  \
+  else                                               \
+  {                                                  \
+    /* Unknown clock type */                         \
+    BSP_ASSERT(0);                                   \
+  }                                                  \
+                                                     \
+  /* Turn on the timer clock; keep 32KHz running */  \
+  __bis_SR_register(SCG0);                           \
+}
 
 /* ------------------------------------------------------------------------------------------------
  *                                            Local Variables
@@ -100,9 +182,10 @@ BSP_EARLY_INIT(void)
  */
 void BSP_InitBoard(void)
 {
-  /* configure internal digitally controlled oscillator */
-  DCOCTL  = BSP_CONFIG_MSP430_DCOCTL;
-  BCSCTL1 = BSP_CONFIG_MSP430_BCSCTL1;
+  /* MCU clk is driven by internal Digitally Controlled Oscillator (DCO).
+   * The DCO needs to be calibrated before use.
+   */
+  BSP_CLOCK_INIT(BSP_CLOCK_TYPE_DCO);
 
   /* Configure TimerA for use by the delay function */
 
@@ -141,6 +224,7 @@ void BSP_InitBoard(void)
 void BSP_Delay(uint16_t usec)
 #if !defined(SW_TIMER)
 {
+  BSP_ASSERT(usec < BSP_DELAY_MAX_USEC);
 
   TAR = 0; /* initial count */
   TACCR0 = BSP_TIMER_CLK_MHZ*usec; /* compare count. (delay in ticks) */
@@ -157,11 +241,7 @@ void BSP_Delay(uint16_t usec)
   /* Clear the interrupt flag */
    TACCTL0 &= ~CCIFG;
 }
-
-
 #else  /* !SW_TIMER */
-
-
 {
   /* Declared 'volatile' in case User optimizes for speed. This will
    * prevent the optimizer from eliminating the loop completely. But
@@ -173,10 +253,11 @@ void BSP_Delay(uint16_t usec)
 
   return;
 }
-
 #endif  /* !SW_TIMER */
+
 /**************************************************************************************************
 */
+
 
 
 

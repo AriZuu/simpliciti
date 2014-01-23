@@ -1,6 +1,6 @@
 /**************************************************************************************************
-  Revised:        $Date: 2011/11/10 13:40:30 $
-  Revision:       $Revision: 1.2 $
+  Revised:        $Date: 2011/11/23 16:12:47 $
+  Revision:       $Revision: 1.3 $
 
   Copyright 2007 Texas Instruments Incorporated.  All rights reserved.
 
@@ -126,7 +126,7 @@ static const uint8_t mrfiLogicalChanTable[] =
 #elif defined(MRFI_CC1100E_470)
 static const uint8_t mrfiLogicalChanTable[] =
 {
-  20,
+  SMARTRF_SETTING_CHANNR,
   40,
   60,
   80
@@ -134,7 +134,7 @@ static const uint8_t mrfiLogicalChanTable[] =
 #elif defined(MRFI_CC1100E_950)
 static const uint8_t mrfiLogicalChanTable[] =
 {
-  5,
+  SMARTRF_SETTING_CHANNR,
   10,
   15,
   20

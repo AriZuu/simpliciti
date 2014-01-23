@@ -1,8 +1,7 @@
 /**************************************************************************************************
   Filename:       nwk_join.c
-  Revised:        $Date: 2011/11/10 13:40:30 $
-  Revision:       $Revision: 1.2 $
-  Author:         $Author: ari $
+  Revised:        $Date: 2011/11/23 16:12:47 $
+  Revision:       $Revision: 1.3 $
 
   Description:    This file supports the SimpliciTI Join network application.
 
@@ -511,6 +510,9 @@ smplStatus_t nwk_join(void)
         nwk_setAPAddress(&apAddr);
         sTid++;   /* guard against duplicates */
         rc = SMPL_SUCCESS;
+#if defined( FREQUENCY_AGILITY )
+        break;
+#endif
       }
     }
     /* TODO: process encryption stuff */

@@ -1,12 +1,11 @@
 /**************************************************************************************************
   Filename:       nwk_globals.c
-  Revised:        $Date: 2011/11/10 13:40:30 $
-  Revision:       $Revision: 1.2 $
-  Author:         $Author: ari $
+  Revised:        $Date: 2011/11/23 16:12:48 $
+  Revision:       $Revision: 1.3 $
 
   Description:    This file manages global NWK data.
 
-  Copyright 2007-2008 Texas Instruments Incorporated. All rights reserved.
+  Copyright 2007-2009 Texas Instruments Incorporated. All rights reserved.
 
   IMPORTANT: Your use of this Software is limited to those specific rights granted under
   the terms of a software license agreement between the user who downloaded the software,
@@ -62,14 +61,15 @@ static const addr_t   sMyROMAddress = THIS_DEVICE_ADDRESS;
 static addr_t         sAPAddress;
 static addr_t         sMyRAMAddress;
 static uint8_t        sRAMAddressIsSet = 0;
-/* Version number set as a 2 byte quantity. Each nibble is a revision number
- * in the form w.x.y.z. The subfields are each limited to values 0x0-0xF.
+
+/* Version number set as a 4 byte quantity. Each byte is a revision number
+ * in the form w.x.y.z. The subfields are each limited to values 0x0-0xFF.
  */
 static const smplVersionInfo_t sVersionInfo = {
                                                 0x02,  /* protocol version */
                                                 0x01,  /* major revision number */
                                                 0x01,  /* minor revision number */
-                                                0x00,  /* maintenance release number */
+                                                0x01,  /* maintenance release number */
                                                 0x00   /* special release */
                                                };
 

@@ -1,7 +1,7 @@
 /**************************************************************************************************
   Filename:       mrfi_spi.c
-  Revised:        $Date: 2011/11/10 13:40:30 $
-  Revision:       $Revision: 1.2 $
+  Revised:        $Date: 2011/11/23 16:12:48 $
+  Revision:       $Revision: 1.3 $
 
   Copyright 2008-2009 Texas Instruments Incorporated. All rights reserved.
 
@@ -600,10 +600,6 @@ uint8_t mrfiSpiBitSet(uint8_t addr, uint8_t bit)
  *                                  Compile Time Integrity Checks
  **************************************************************************************************
  */
-#if (MAC_SPI_RADIO_POWER_VREG_ON & MAC_SPI_RADIO_POWER_OSC_ON)
-#error "ERROR!  Non-unique bit values for SPI radio power states."
-#endif
-
 #if (FIFO_ACCESS_TX_WRITE != 0)
 #error "ERROR!  Code optimized for FIFO_ACCESS_TX_WRITE equal to zero."
 #endif

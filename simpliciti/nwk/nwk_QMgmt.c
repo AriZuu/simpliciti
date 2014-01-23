@@ -1,7 +1,7 @@
 /**************************************************************************************************
   Filename:       nwk_QMgmt.c
-  Revised:        $Date: 2011/11/10 13:38:29 $
-  Revision:       $Revision: 1.1 $
+  Revised:        $Date: 2011/11/23 16:12:48 $
+  Revision:       $Revision: 1.3 $
   Author:         $Author: ari $
 
   Description:    This file supports the SimpliciTI input and output frame queues

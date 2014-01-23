@@ -1,7 +1,7 @@
 /**************************************************************************************************
   Filename:       bsp_board.c
-  Revised:        $Date: 2011/11/23 16:12:47 $
-  Revision:       $Revision: 1.3 $
+  Revised:        $Date: 2011/11/23 16:12:48 $
+  Revision:       $Revision: 1.1 $
 
   Copyright 2007-2009 Texas Instruments Incorporated.  All rights reserved.
 
@@ -32,8 +32,8 @@
 
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
  *   BSP (Board Support Package)
- *   Target : Texas Instruments EZ430-RF2500
- *            "MSP430 Wireless Development Tool"
+ *   Target : Texas Instruments MSP-EXP430FG4618
+ *            "MSP430FG4618/F2013 Experimenter Board"
  *   Top-level board code file.
  * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
  */
@@ -100,14 +100,15 @@ BSP_EARLY_INIT(void)
  */
 void BSP_InitBoard(void)
 {
-  /* configure internal digitally controlled oscillator */
-  DCOCTL  = BSP_CONFIG_MSP430_DCOCTL;
-  BCSCTL1 = BSP_CONFIG_MSP430_BCSCTL1;
+  /* set MCU clock speed - driven by internal Digitally Controlled Oscillator (DCO) */
+  SCFQCTL   = BSP_CONFIG_MSP430_N;
+  SCFI0     = (BSP_CONFIG_MSP430_FLLDx << 6) | (BSP_CONFIG_MSP430_FN_x << 2);
+  FLL_CTL0  = DCOPLUS | XCAP14PF;   /* enable divider, set osc capacitance */
 
   /* Configure TimerA for use by the delay function */
 
   /* Reset the timer */
-  TACTL |= TACLR; /* Set the TACLR */
+  TACTL |= TACLR; /* Set the TACLR  */
 
   /* Clear all settings */
   TACTL = 0x0;
@@ -142,7 +143,7 @@ void BSP_Delay(uint16_t usec)
 #if !defined(SW_TIMER)
 {
 
-  TAR = 0; /* initial count */
+  TAR = 0; /* initial count  */
   TACCR0 = BSP_TIMER_CLK_MHZ*usec; /* compare count. (delay in ticks) */
 
   /* Start the timer in UP mode */
@@ -157,17 +158,13 @@ void BSP_Delay(uint16_t usec)
   /* Clear the interrupt flag */
    TACCTL0 &= ~CCIFG;
 }
-
-
-#else  /* !SW_TIMER */
-
-
+#else   /* !SW_TIMER */
 {
   /* Declared 'volatile' in case User optimizes for speed. This will
    * prevent the optimizer from eliminating the loop completely. But
    * it also generates more code...
    */
-  volatile uint16_t repeatCount = sIterationsPerUsec*usec;
+  volatile uint16_t repeatCount = (sIterationsPerUsec*usec)/2;
 
   while (repeatCount--) ;
 
@@ -176,7 +173,24 @@ void BSP_Delay(uint16_t usec)
 
 #endif  /* !SW_TIMER */
 /**************************************************************************************************
-*/
+ *                                  Compile Time Integrity Checks
+ **************************************************************************************************
+ */
+#if (!defined BSP_CONFIG_MSP430_N) || \
+    (BSP_CONFIG_MSP430_N == 0) || (BSP_CONFIG_MSP430_N > 127)
+#error "ERROR: Missing or illegal value for N (see register SCFQCTL)."
+#endif
 
+#if (!defined BSP_CONFIG_MSP430_FLLDx) || (BSP_CONFIG_MSP430_FLLDx > 3)
+#error "ERROR: Missing or illegal value for FLLDx (see register SCFI0)."
+#endif
+
+#if (!defined BSP_CONFIG_MSP430_FN_x) || (BSP_CONFIG_MSP430_FN_x > 15)
+#error "ERROR: Missing or illegal value for FLLDx (see register SCFI0)."
+#endif
+
+
+/**************************************************************************************************
+*/
 
 

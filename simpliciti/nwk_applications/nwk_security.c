@@ -1,7 +1,7 @@
 /**************************************************************************************************
   Filename:       nwk_security.c
-  Revised:        $Date: 2011/11/10 13:38:29 $
-  Revision:       $Revision: 1.1 $
+  Revised:        $Date: 2011/11/23 16:12:47 $
+  Revision:       $Revision: 1.3 $
   Author:         $Author: ari $
 
   Description:    This file supports the SimpliciTI Security network application.
