@@ -359,6 +359,10 @@ static uint32_t crcFail = 0;
 static uint32_t crcPass = 0;
 static uint32_t noFrame = 0;
 
+// Radio frequency offset read from calibration memory
+// Compensates crystal deviation from 26MHz nominal value
+extern unsigned char rf_freqoffset;
+
 /**************************************************************************************************
  * @fn          MRFI_Init
  *
@@ -465,6 +469,10 @@ void MRFI_Init(void)
         MRFI_ASSERT( mrfiRadioCfg[i][1] == MRFI_RADIO_REG_READ(mrfiRadioCfg[i][0]) );
     }
   }
+
+    // Apply global frequency offset to FSCTRL0
+    MRFI_STROBE_IDLE_AND_WAIT();
+    MRFI_RADIO_REG_WRITE(FSCTRL0, rf_freqoffset);
 
   /* set default channel */
   MRFI_SetLogicalChannel( 0 );
