@@ -86,12 +86,13 @@ SRC_HDR =
 SRC_OBJ =
 CDEFINES += $(SIMPLICITI_DEFINES)
 
+MODULES = ../picoos-micro
 DIR_USRINC += $(TEXAS_CONF)  \
 		bsp/ \
 		mrfi/ \
 		simpliciti/nwk/ \
 		simpliciti/nwk_applications/ \
-		../picoos-micro ../msptest
+		../msptest
 
 ifeq '$(strip $(DIR_OUTPUT))' ''
 DIR_OUTPUT = $(CURRENTDIR)/bin
