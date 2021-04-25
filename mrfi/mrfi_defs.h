@@ -189,6 +189,8 @@
  * ************************************************************************************************
  */
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wexpansion-to-defined"
 /* verify that only one supported radio is selected */
 #define MRFI_NUM_SUPPORTED_RADIOS_SELECTED   ((defined MRFI_CC1100) + \
                                               (defined MRFI_CC1101) + \
@@ -219,6 +221,8 @@
     (!defined MRFI_RADIO_FAMILY6)
 #error "ERROR: A radio family has not been assigned."
 #endif
+
+#pragma GCC diagnostic pop
 
 
 /**************************************************************************************************
