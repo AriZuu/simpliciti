@@ -106,9 +106,15 @@
 #define __bsp_ISR_FUNCTION__(f,v) void __attribute__((interrupt(v))) f(void)
 #define __bsp_ENABLE_INTERRUPTS__() __eint()
 #define __bsp_DISABLE_INTERRUPTS__() __dint()
+#if __GNUC__ >= 9
+#define __bsp_INTERRUPTS_ARE_ENABLED__() (__get_SR_register()  & 0x8)
+#define __bsp_GET_ISTATE__() (__get_SR_register()  & 0x8)
+#define __bsp_RESTORE_ISTATE__(x) st(if((x&GIE))__bis_SR_register (GIE);)
+#else
 #define __bsp_INTERRUPTS_ARE_ENABLED__() (__read_status_register()  & 0x8)
 #define __bsp_GET_ISTATE__() (__read_status_register()  & 0x8)
 #define __bsp_RESTORE_ISTATE__(x) st(if((x&GIE))__bis_status_register (GIE);)
+#endif
 #else
 #error "ERROR: Unknown compiler."
 #endif
